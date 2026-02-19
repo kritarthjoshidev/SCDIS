@@ -122,6 +122,26 @@ This repo includes `render.yaml` and `backend/requirements.txt`.
 4. Render auto-creates `scdis-backend` using `render.yaml`
 5. After deploy, copy backend URL
 
+## Backend on Oracle Always Free VM (Alternative)
+
+Use this detailed guide:
+
+- `docs/deploy-oracle-vercel.md`
+
+Quick path:
+
+1. Create Oracle Always Free VM
+2. Open ingress ports `22`, `80`, `443`
+3. Clone repo on VM to `/opt/scdis`
+4. Run:
+
+```bash
+bash backend/deploy/oracle_vm_setup.sh /opt/scdis ubuntu
+```
+
+(Use `opc` as the second argument on Oracle Linux images.)
+
+>>>>>>> d98ef0c (Add Oracle VM + Vercel deployment setup)
 ## Frontend on Vercel
 
 1. In Vercel: `New Project`
