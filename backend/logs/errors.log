@@ -1,0 +1,51 @@
+2026-02-17 19:29:48,283 - ERROR - ai_engine.forecasting_engine - Missing feature: 'building_id'
+2026-02-17 19:29:48,285 - ERROR - ai_engine.decision - Decision generation failed
+Traceback (most recent call last):
+  File "E:\scdis-project\backend\ai_engine\decision.py", line 46, in generate_decision
+    forecast = self.forecasting_engine.predict(telemetry_data)
+  File "E:\scdis-project\backend\ai_engine\forecasting_engine.py", line 58, in predict
+    return self.forecast(data)
+           ~~~~~~~~~~~~~^^^^^^
+  File "E:\scdis-project\backend\ai_engine\forecasting_engine.py", line 44, in forecast
+    features = self._prepare_features(data)
+  File "E:\scdis-project\backend\ai_engine\forecasting_engine.py", line 25, in _prepare_features
+    data["building_id"],
+    ~~~~^^^^^^^^^^^^^^^
+KeyError: 'building_id'
+2026-02-18 18:26:19,599 - ERROR - asyncio - Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\krita\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\krita\AppData\Local\Python\pythoncore-3.14-64\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+2026-02-19 22:24:53,724 - ERROR - services.laptop_runtime_service - Laptop scan iteration failed
+Traceback (most recent call last):
+  File "E:\scdis-project\backend\services\laptop_runtime_service.py", line 128, in scan_now
+    self._scan_iteration()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "E:\scdis-project\backend\services\laptop_runtime_service.py", line 184, in _scan_iteration
+    edge_snapshot = self._collect_snapshot()
+  File "E:\scdis-project\backend\services\laptop_runtime_service.py", line 257, in _collect_snapshot
+    return self._collect_windows_snapshot()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "E:\scdis-project\backend\services\laptop_runtime_service.py", line 318, in _collect_windows_snapshot
+    completed = subprocess.run(
+        ["powershell", "-NoProfile", "-Command", script],
+    ...<3 lines>...
+        check=False,
+    )
+  File "C:\Users\krita\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 556, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\krita\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1239, in communicate
+    sts = self.wait(timeout=self._remaining_time(endtime))
+  File "C:\Users\krita\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1278, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\krita\AppData\Local\Python\pythoncore-3.14-64\Lib\subprocess.py", line 1607, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['powershell', '-NoProfile', '-Command', '\n$os = Get-CimInstance Win32_OperatingSystem\n$cpuLoad = (Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average\n$disk = Get-CimInstance Win32_LogicalDisk -Filter "DeviceID=\'C:\'" | Select-Object -First 1\n$battery = Get-CimInstance Win32_Battery | Select-Object -First 1\n$processCount = (Get-Process | Measure-Object).Count\n\n$diskPercent = 0\nif ($disk -and $disk.Size -gt 0) {\n  $diskPercent = (($disk.Size - $disk.FreeSpace) / $disk.Size) * 100\n}\n\n$memoryPercent = 0\nif ($os -and $os.TotalVisibleMemorySize -gt 0) {\n  $memoryPercent = (($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / $os.TotalVisibleMemorySize) * 100\n}\n\n$batteryPercent = $null\n$powerPlugged = $null\nif ($battery) {\n  $batteryPercent = [double]$battery.EstimatedChargeRemaining\n  $powerPlugged = @(\'2\',\'6\',\'7\',\'8\',\'9\') -contains [string]$battery.BatteryStatus\n}\n\n[PSCustomObject]@{\n  cpu_percent = [math]::Round([double]$cpuLoad, 2)\n  memory_percent = [math]::Round([double]$memoryPercent, 2)\n  disk_percent = [math]::Round([double]$diskPercent, 2)\n  battery_percent = if($batteryPercent -eq $null){$null}else{[math]::Round($batteryPercent, 2)}\n  power_plugged = $powerPlugged\n  process_count = [int]$processCount\n} | ConvertTo-Json -Compress\n']' timed out after 8 seconds
