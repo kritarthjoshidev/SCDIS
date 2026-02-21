@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import { Slider } from "@/components/ui/slider"
 import { Activity, Gauge, Thermometer, Zap, Battery, Plug, Laptop } from "lucide-react"
 import type { LiveDashboardResponse } from "@/lib/api"
+import { useClientEdgeProfile } from "@/hooks/use-client-edge-profile"
 
 export function TelemetryPanel({
   telemetry,
@@ -12,6 +13,7 @@ export function TelemetryPanel({
   telemetry: LiveDashboardResponse["telemetry"] | null
   isScanning: boolean
 }) {
+  const clientEdge = useClientEdgeProfile()
   const industrial = telemetry?.industrial_metrics
   const energyUsage = Math.round(industrial?.energy_usage_kwh ?? 0)
   const thermalIndex = Math.round(industrial?.thermal_index_c ?? 0)
@@ -19,10 +21,16 @@ export function TelemetryPanel({
   const gridStatus = industrial?.grid_status ?? "unknown"
   const siteId = industrial?.site_id ?? "plant-local"
   const battery =
-    telemetry?.battery_percent === null || telemetry?.battery_percent === undefined
+    clientEdge?.batteryPercent ??
+    (telemetry?.battery_percent === null || telemetry?.battery_percent === undefined
       ? null
-      : Math.round(telemetry.battery_percent)
-  const powerPlugged = telemetry?.power_plugged
+      : Math.round(telemetry.battery_percent))
+  const powerPlugged =
+    clientEdge?.powerPlugged === null || clientEdge?.powerPlugged === undefined
+      ? telemetry?.power_plugged
+      : clientEdge.powerPlugged
+  const edgeName = clientEdge?.edgeLabel ?? telemetry?.hostname ?? "edge-node"
+  const platformLabel = clientEdge?.platform ?? telemetry?.platform ?? "Unknown Platform"
 
   return (
     <motion.div
@@ -120,14 +128,32 @@ export function TelemetryPanel({
             </span>
             <span className="inline-flex items-center gap-1 rounded-md border border-border bg-card px-2 py-1 text-muted-foreground">
               <Laptop className="size-3" />
-              Edge: {telemetry?.hostname ?? "local-machine"}
+              Edge: {edgeName}
             </span>
+            {clientEdge?.cpuCores ? (
+              <span className="rounded-md border border-border bg-card px-2 py-1 text-muted-foreground">
+                CPU: {clientEdge.cpuCores} cores
+              </span>
+            ) : null}
+            {clientEdge?.memoryGB ? (
+              <span className="rounded-md border border-border bg-card px-2 py-1 text-muted-foreground">
+                RAM: {clientEdge.memoryGB} GB
+              </span>
+            ) : null}
+            {clientEdge?.networkType ? (
+              <span className="rounded-md border border-border bg-card px-2 py-1 text-muted-foreground">
+                Net: {clientEdge.networkType.toUpperCase()}
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-2 rounded-md border border-border bg-card px-2 py-1 font-mono text-[10px] text-muted-foreground">
+            Platform: {platformLabel}
           </div>
         </div>
 
         <div className="flex items-center gap-2 rounded-lg border border-neon-cyan/20 bg-neon-cyan/5 p-3 font-mono text-[10px] text-neon-cyan">
           <Activity className={`size-3 ${isScanning ? "animate-pulse" : ""}`} />
-          Real-time autonomous scanning active on this laptop.
+          Real-time autonomous scanning active for this browser edge.
         </div>
       </div>
     </motion.div>

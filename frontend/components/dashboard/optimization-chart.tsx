@@ -28,7 +28,7 @@ export function OptimizationChart({ history }: { history: LiveHistoryPoint[] }) 
         <h3 className="font-mono text-xs uppercase tracking-widest text-neon-cyan">
           Optimization Metrics
         </h3>
-        <span className="ml-auto font-mono text-[10px] text-muted-foreground">Live laptop scan</span>
+        <span className="ml-auto font-mono text-[10px] text-muted-foreground">Live edge scan</span>
       </div>
 
       <div className="h-[200px] w-full">

@@ -258,6 +258,22 @@ class LaptopRuntimeService:
 
         return self._collect_fallback_snapshot()
 
+    def _resolve_edge_hostname(self) -> str:
+        configured_name = os.getenv("EDGE_NODE_NAME", "").strip()
+        if configured_name:
+            return configured_name
+
+        host = socket.gethostname().strip() or "edge-node"
+        if host.lower() in {"localhost", "127.0.0.1", "::1"}:
+            return "cloud-edge-node"
+        return host
+
+    def _resolve_platform_label(self) -> str:
+        platform_label = platform.platform()
+        if os.getenv("REPL_ID"):
+            return "Replit Linux Edge"
+        return platform_label
+
     def _collect_with_psutil(self) -> Dict[str, Any]:
         battery = None
         try:
@@ -270,8 +286,8 @@ class LaptopRuntimeService:
 
         return {
             "timestamp": datetime.utcnow().isoformat(),
-            "hostname": socket.gethostname(),
-            "platform": platform.platform(),
+            "hostname": self._resolve_edge_hostname(),
+            "platform": self._resolve_platform_label(),
             "cpu_percent": round(float(psutil.cpu_percent(interval=0.2)), 2),
             "memory_percent": round(float(psutil.virtual_memory().percent), 2),
             "disk_percent": round(float(disk_usage.percent), 2),
@@ -330,8 +346,8 @@ if ($battery) {
 
         return {
             "timestamp": datetime.utcnow().isoformat(),
-            "hostname": socket.gethostname(),
-            "platform": platform.platform(),
+            "hostname": self._resolve_edge_hostname(),
+            "platform": self._resolve_platform_label(),
             "cpu_percent": round(float(payload.get("cpu_percent", 0.0)), 2),
             "memory_percent": round(float(payload.get("memory_percent", 0.0)), 2),
             "disk_percent": round(float(payload.get("disk_percent", 0.0)), 2),
@@ -350,8 +366,8 @@ if ($battery) {
 
         return {
             "timestamp": datetime.utcnow().isoformat(),
-            "hostname": socket.gethostname(),
-            "platform": platform.platform(),
+            "hostname": self._resolve_edge_hostname(),
+            "platform": self._resolve_platform_label(),
             "cpu_percent": round(float(max(0.0, min(load, 100.0))), 2),
             "memory_percent": 0.0,
             "disk_percent": 0.0,
